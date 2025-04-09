@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Predictor</title>
+
+    <!-- Bootstrap + Font Awesome -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/5f3f547070.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .navbar {
+            background-color: #1976d2;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: white !important;
+        }
+
+        .header {
+            background-color: #e3f2fd;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1976d2;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .card {
+            background-color: rgb(165, 218, 242);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group label {
+            font-weight: 500;
+        }
+
+        .btn-predict {
+            background-color: #1976d2;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .btn-predict:hover {
+            background-color: #125ea3;
+        }
+
+        .footer {
+            background-color: #1976d2;
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            margin-top: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            margin: 0 10px;
+            border: none;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            color: #333;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tabs button.active {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        .alert-info {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #1976d2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <span class="navbar-brand"><i class="fas fa-car-side"></i> MyCarEstimator</span>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Welcome to Car Price Predictor</h1>
+        <p>Get an estimate for your old or new car's selling price using AI-powered predictions.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="active" onclick="showForm('old')">Old Car</button>
+    </div>
+
+    <!-- Form Section -->
+    <div class="container">
+        <div class="card">
+            <form action="/predict" method="POST" id="carForm">
+                <div class="form-group">
+                    <label>Car Model</label>
+                    <input type="text" name="Car_Model" class="form-control" placeholder="e.g. Honda City" required>
+                </div>
+                <div class="form-group" id="yearField">
+                    <label>Year of Purchase</label>
+                    <input type="number" name="Year" class="form-control" placeholder="e.g. 2015" required>
+                </div>
+                <div class="form-group">
+                    <label>Showroom Price (in Lakhs)</label>
+                    <input type="number" step="0.01" name="Present_Price" class="form-control" required>
+                </div>
+                <div class="form-group" id="kmsField">
+                    <label>Kilometers Driven</label>
+                    <input type="number" name="Kms_Driven" class="form-control" required>
+                </div>
+                <div class="form-group" id="ownerField">
+                    <label>Previous Owners</label>
+                    <input type="number" name="Owner" class="form-control" placeholder="0, 1, or 2" required>
+                </div>
+                <div class="form-group">
+                    <label>Fuel Type</label>
+                    <select class="form-control" name="Fuel_Type_Petrol" required>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="CNG">CNG</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Seller Type</label>
+                    <select class="form-control" name="Seller_Type_Individual" required>
+                        <option value="Dealer">Dealer</option>
+                        <option value="Individual">Individual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Transmission Type</label>
+                    <select class="form-control" name="Transmission_Mannual" required>
+                        <option value="Mannual">Manual</option>
+                        <option value="Automatic">Automatic</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-predict btn-block">Predict Price</button>
+            </form>
+
+            {% if prediction_text %}
+                <div class="alert alert-info text-center mt-3">{{ prediction_text }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 MyCarEstimator Cars | Designed with ❤️</p>
+    </div>
+
+    <script>
+        function showForm(type) {
+            const buttons = document.querySelectorAll(".tabs button");
+            buttons.forEach(btn => btn.classList.remove("active"));
+
+            if (type === 'new') {
+                document.getElementById("yearField").style.display = "none";
+                document.getElementById("kmsField").style.display = "none";
+                document.getElementById("ownerField").style.display = "none";
+                buttons[1].classList.add("active");
+            } else {
+                document.getElementById("yearField").style.display = "block";
+                document.getElementById("kmsField").style.display = "block";
+                document.getElementById("ownerField").style.display = "block";
+                buttons[0].classList.add("active");
+            }
+        }
+    </script>
+</body>
+
+</html>
